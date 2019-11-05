@@ -7,9 +7,9 @@ import arrow as arrow
 import boto3
 from boto3_type_annotations.dynamodb import Table
 
-from common.constants import Constants
-from common.validator import validate_resource
-from data.resource import Resource
+from insert_resource.main.common.constants import Constants
+from insert_resource.main.common.validator import validate_resource
+from insert_resource.main.data.resource import Resource
 
 
 def response(status_code, body):
