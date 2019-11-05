@@ -132,7 +132,7 @@ class TestHandlerCase(unittest.TestCase):
         from src.classes.RequestHandler import RequestHandler
         dynamodb = self.setup_mock_database()
         request_handler = RequestHandler(dynamodb)
-        resource = self.generate_mock_resource(None,None,None)
+        resource = self.generate_mock_resource(None, None, None)
         resource.metadata = None
         event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
         handler_insert_response = request_handler.handler(event, None)
@@ -144,7 +144,7 @@ class TestHandlerCase(unittest.TestCase):
         from src.classes.RequestHandler import RequestHandler
         dynamodb = self.setup_mock_database()
         request_handler = RequestHandler(dynamodb)
-        resource = self.generate_mock_resource(None,None,None)
+        resource = self.generate_mock_resource(None, None, None)
         resource.files = None
         event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
         handler_insert_response = request_handler.handler(event, None)
@@ -182,7 +182,7 @@ class TestHandlerCase(unittest.TestCase):
         from src.classes.RequestHandler import RequestHandler
         dynamodb = self.setup_mock_database()
         request_handler = RequestHandler(dynamodb)
-        resource = self.generate_mock_resource(None,None,None)
+        resource = self.generate_mock_resource(None, None, None)
         resource.owner = None
         event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
         handler_insert_response = request_handler.handler(event, None)
