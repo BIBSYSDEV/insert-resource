@@ -5,7 +5,6 @@ import uuid
 
 import arrow as arrow
 import boto3
-from boto3.dynamodb.conditions import Key
 from boto3_type_annotations.dynamodb import Table
 
 from common.constants import Constants
@@ -72,5 +71,5 @@ class RequestHandler:
             ddb_response = self.insert_resource(generated_uuid, current_time, resource)
             ddb_response['resource_identifier'] = generated_uuid
             return response(http.HTTPStatus.CREATED, json.dumps(ddb_response))
-        else:
-            return response(http.HTTPStatus.BAD_REQUEST, Constants.ERROR_INSUFFICIENT_PARAMETERS)
+
+        return response(http.HTTPStatus.BAD_REQUEST, Constants.ERROR_INSUFFICIENT_PARAMETERS)
