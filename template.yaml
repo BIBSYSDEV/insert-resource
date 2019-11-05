@@ -38,7 +38,7 @@ Resources:
   InsertResource:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./src
+      CodeUri: ./insert_resource
       Handler: app.handler
       Runtime: python3.7
       Events:
