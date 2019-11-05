@@ -1,5 +1,5 @@
-from insert_resource.main.RequestHandler import RequestHandler
-from insert_resource.main.common.constants import Constants
+from main.RequestHandler import RequestHandler
+from main.common.constants import Constants
 
 
 def handler(event, context):
