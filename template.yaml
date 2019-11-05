@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+  - AWS::Serverless-2016-10-31
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: insert-resource
+    Description: Creates new resources and persists in DynamoDB
+    Author: Unit
+    SpdxLicenseId: MIT
+    LicenseUrl: LICENSE
+    ReadmeUrl: README.md
+    HomePageUrl: https://github.com/BIBSYSDEV/data-persistence
+    SemanticVersion: 0.0.1
+    SourceCodeUrl: https://github.com/BIBSYSDEV/data-persistence
+
+Parameters:
+  ProjectId:
+    Type: String
+    Description: The projectId used to associate new resources to team members
+  CodeDeployRole:
+    Type: String
+    Description: IAM role to allow AWS CodeDeploy to manage deployment of AWS Lambda functions
+  Stage:
+    Type: String
+    Description: The name for a project pipeline stage, such as Staging or Prod, for which resources are provisioned and deployed.
+    Default: ''
+
+Globals:
+  Function:
+    AutoPublishAlias: live
+    DeploymentPreference:
+      Enabled: true
+      Type: Canary10Percent5Minutes
+      Role: !Ref CodeDeployRole
+
+Resources:
+  InsertResource:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src
+      Handler: app.handler
+      Runtime: python3.7
+      Events:
+        PostEvent:
+          Type: Api
+          Properties:
+            Path: /resources
+            Method: POST
+      Environment:
+        Variables:
+          TABLE_NAME: nva-test
+#          TABLE_NAME: !GetAtt DynamoDBTable.TableName
+
+LambdaExecutionRole:
+  Description: Creating service role in IAM for AWS Lambda
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: !Sub 'CodeStar-${ProjectId}-Execution${Stage}'
+    AssumeRolePolicyDocument:
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: [lambda.amazonaws.com]
+          Action: sts:AssumeRole
+    Path: /
+    ManagedPolicyArns:
+      - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
