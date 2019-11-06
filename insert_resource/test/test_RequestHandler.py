@@ -1,6 +1,12 @@
+import os
+import sys
+
+testdir = os.path.dirname(__file__)
+srcdir = '../'
+sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
+
 import http
 import json
-import os
 import random
 import string
 import unittest
@@ -308,6 +314,30 @@ class TestHandlerCase(unittest.TestCase):
         handler_response = app.handler(event, None)
         self.assertEqual(handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
                          'HTTP Status code not 400')
+
+    def test_app_missing_env_region(self):
+        from insert_resource import app
+        _event = {
+            Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
+            "body": "{\"resource\": {}} "
+        }
+
+        del os.environ[Constants.ENV_VAR_REGION]
+        _handler_response = app.handler(_event, None)
+        self.assertEqual(_handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.INTERNAL_SERVER_ERROR,
+                         'HTTP Status code not 500')
+
+    def test_app_missing_env_table(self):
+        from insert_resource import app
+        _event = {
+            Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
+            "body": "{\"resource\": {}} "
+        }
+
+        del os.environ[Constants.ENV_VAR_TABLE_NAME]
+        _handler_response = app.handler(_event, None)
+        self.assertEqual(_handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.INTERNAL_SERVER_ERROR,
+                         'HTTP Status code not 500')
 
 
 if __name__ == '__main__':

@@ -7,16 +7,10 @@ import arrow as arrow
 import boto3
 from boto3_type_annotations.dynamodb import Table
 
-from insert_resource.main.common.constants import Constants
-from insert_resource.main.common.validator import validate_resource
-from insert_resource.main.data.resource import Resource
-
-
-def response(status_code, body):
-    return {
-        Constants.RESPONSE_STATUS_CODE: status_code,
-        Constants.RESPONSE_BODY: body
-    }
+from .common.constants import Constants
+from .common.helpers import response
+from .common.validator import validate_resource
+from .data.resource import Resource
 
 
 class RequestHandler:
