@@ -2,3 +2,4 @@ boto3
 boto3_type_annotations
 arrow
 moto
+git+git://github.com/BIBSYSDEV/resource-utilities.git

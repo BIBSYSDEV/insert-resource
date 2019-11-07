@@ -7,10 +7,10 @@ import arrow as arrow
 import boto3
 from boto3_type_annotations.dynamodb import Table
 
-from .common.constants import Constants
-from .common.helpers import response
-from .common.validator import validate_resource
-from .data.resource import Resource
+from common.constants import Constants
+from common.helpers import response
+from common.validator import validate_resource_insert
+from data.resource import Resource
 
 
 class RequestHandler:
@@ -58,7 +58,7 @@ class RequestHandler:
         resource_not_none = resource is not None
         if http_method == Constants.HTTP_METHOD_POST and resource_not_none:
             try:
-                validate_resource(resource)
+                validate_resource_insert(resource)
             except ValueError as e:
                 return response(http.HTTPStatus.BAD_REQUEST, e.args[0])
             generated_uuid = uuid.uuid4().__str__()
