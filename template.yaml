@@ -15,24 +15,9 @@ Metadata:
     SourceCodeUrl: https://github.com/BIBSYSDEV/data-persistence
 
 Parameters:
-  ProjectId:
+  ResourceTable:
     Type: String
-    Description: The projectId used to associate new resources to team members
-  CodeDeployRole:
-    Type: String
-    Description: IAM role to allow AWS CodeDeploy to manage deployment of AWS Lambda functions
-  Stage:
-    Type: String
-    Description: The name for a project pipeline stage, such as Staging or Prod, for which resources are provisioned and deployed.
-    Default: ''
-
-Globals:
-  Function:
-    AutoPublishAlias: live
-    DeploymentPreference:
-      Enabled: true
-      Type: Canary10Percent5Minutes
-      Role: !Ref CodeDeployRole
+    Description: Reference to table containing resource data
 
 Resources:
   InsertResource:
@@ -49,20 +34,5 @@ Resources:
             Method: POST
       Environment:
         Variables:
-          TABLE_NAME: nva-test
-#          TABLE_NAME: !GetAtt DynamoDBTable.TableName
-
-LambdaExecutionRole:
-  Description: Creating service role in IAM for AWS Lambda
-  Type: AWS::IAM::Role
-  Properties:
-    RoleName: !Sub 'CodeStar-${ProjectId}-Execution${Stage}'
-    AssumeRolePolicyDocument:
-      Statement:
-        - Effect: Allow
-          Principal:
-            Service: [lambda.amazonaws.com]
-          Action: sts:AssumeRole
-    Path: /
-    ManagedPolicyArns:
-      - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+          TABLE_NAME: !Ref ResourceTable
+          REGION: !Ref AWS::Region
