@@ -10,16 +10,18 @@ Metadata:
     SpdxLicenseId: MIT
     LicenseUrl: LICENSE
     ReadmeUrl: README.md
-    HomePageUrl: https://github.com/BIBSYSDEV/data-persistence
+    HomePageUrl: https://github.com/BIBSYSDEV/insert-resource
     SemanticVersion: 0.0.1
-    SourceCodeUrl: https://github.com/BIBSYSDEV/data-persistence
+    SourceCodeUrl: https://github.com/BIBSYSDEV/insert-resource
 
 Parameters:
   ResourceTable:
     Type: String
     Description: Reference to table containing resource data
 
+
 Resources:
+
   InsertResource:
     Type: AWS::Serverless::Function
     Properties:
@@ -30,7 +32,7 @@ Resources:
         PostEvent:
           Type: Api
           Properties:
-            Path: /resources
+            Path: /
             Method: POST
       Environment:
         Variables:

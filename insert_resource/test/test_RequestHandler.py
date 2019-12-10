@@ -1,9 +1,6 @@
 import os
 import sys
-
-testdir = os.path.dirname(__file__)
-srcdir = '../'
-sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
+from unittest import mock
 
 import http
 import json
@@ -16,15 +13,19 @@ import boto3
 from boto3.dynamodb.conditions import Key
 from moto import mock_dynamodb2
 
+from common.constants import Constants
+from common.encoders import encode_resource
+from common.helpers import remove_none_values
 from data.creator import Creator
 from data.file import File
 from data.file_metadata import FileMetadata
 from data.metadata import Metadata
 from data.resource import Resource
 from data.title import Title
-from common.constants import Constants
-from common.helpers import remove_none_values
-from common.encoders import encode_resource, encode_file_metadata, encode_files, encode_creator, encode_metadata
+
+testdir = os.path.dirname(__file__)
+srcdir = '../'
+sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
 
 
 def unittest_lambda_handler(event, context):
@@ -55,15 +56,13 @@ class TestHandlerCase(unittest.TestCase):
         os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
         os.environ['AWS_SECURITY_TOKEN'] = 'testing'
         os.environ['AWS_SESSION_TOKEN'] = 'testing'
-        os.environ[Constants.ENV_VAR_TABLE_NAME] = 'testing'
-        os.environ[Constants.ENV_VAR_REGION] = 'eu-west-1'
 
     def tearDown(self):
         pass
 
-    def setup_mock_database(self):
-        dynamodb = boto3.resource('dynamodb', region_name=os.environ[Constants.ENV_VAR_REGION])
-        table_connection = dynamodb.create_table(TableName=os.environ[Constants.ENV_VAR_TABLE_NAME],
+    def setup_mock_database(self, region, table_name):
+        dynamodb = boto3.resource('dynamodb', region_name=region)
+        table_connection = dynamodb.create_table(TableName=table_name,
                                                  KeySchema=[{'AttributeName': 'resource_identifier', 'KeyType': 'HASH'},
                                                             {'AttributeName': 'modifiedDate', 'KeyType': 'RANGE'}],
                                                  AttributeDefinitions=[
@@ -112,9 +111,12 @@ class TestHandlerCase(unittest.TestCase):
         files[file_2.identifier] = file_2.file_metadata
         return Resource(uuid, time_modified, time_created, metadata, files, 'owner@unit.no')
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_insert_resource(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
         event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
@@ -123,9 +125,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 201')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_insert_resource_with_identifier(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource()
         event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
@@ -134,9 +139,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_insert_resource_missing_resource_metadata(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
         resource.metadata = None
@@ -146,9 +154,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_insert_resource_missing_resource_files(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
         resource.files = None
@@ -158,9 +169,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_insert_resource_invalid_resource_metadata_type_in_event_body(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         event = {
             "httpMethod": "POST",
@@ -171,9 +185,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_insert_resource_invalid_resource_files_type_in_event_body(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         event = {
             "httpMethod": "POST",
@@ -184,9 +201,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_insert_resource_missing_resource_owner_in_event_body(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
         resource.owner = None
@@ -196,9 +216,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_insert_resource_empty_resource_metadata_in_event_body(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
         resource.metadata = Metadata(None, None, None, None, None, None)
@@ -208,9 +231,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 201')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_insert_resource_invalid_resource_in_event_body(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         event = {
             "httpMethod": "POST",
@@ -221,9 +247,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_unknown_http_method_in_event(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, self.EXISTING_RESOURCE_IDENTIFIER)
         event = generate_mock_event('INVALID_HTTP_METHOD', resource)
@@ -232,9 +261,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_missing_resource_in_event_body(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         event = generate_mock_event(Constants.HTTP_METHOD_POST, None)
         handler_insert_response = request_handler.handler(event, None)
@@ -242,9 +274,12 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_missing_http_method_in_event_body(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
         event = generate_mock_event(None, resource)
@@ -253,18 +288,23 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_handler_missing_event(self):
-        from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
-        request_handler = RequestHandler(dynamodb)
-        handler_response = request_handler.handler(None, None)
-        self.assertEqual(handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
+        from insert_resource import app
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
+        handler_insert_response = app.handler(None, None)
+        self.assertEqual(handler_insert_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
                          'HTTP Status code not 400')
         remove_mock_database(dynamodb)
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_insert_resource(self):
         from insert_resource.main.RequestHandler import RequestHandler
-        dynamodb = self.setup_mock_database()
+        dynamodb = self.setup_mock_database('eu-west-1',
+                                            'testing')
         request_handler = RequestHandler(dynamodb)
 
         resource = self.generate_mock_resource(None, None, None)
@@ -295,18 +335,11 @@ class TestHandlerCase(unittest.TestCase):
                          'Value not persisted as expected')
         remove_mock_database(dynamodb)
 
-    def test_encoders(self):
-        self.assertRaises(TypeError, encode_file_metadata, '')
-        self.assertRaises(TypeError, encode_files, '')
-        self.assertRaises(TypeError, encode_creator, '')
-        self.assertRaises(TypeError, encode_metadata, '')
-        self.assertEqual(encode_metadata(Metadata(None, None, None, None, None, dict(), None)), {},
-                         'Unexpected metadata')
-        self.assertRaises(TypeError, encode_resource, '')
-
+    @mock_dynamodb2
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_app(self):
         from insert_resource import app
-        self.assertRaises(ValueError, app.handler, None, None)
         event = {
             "body": "{}"
         }
@@ -314,26 +347,24 @@ class TestHandlerCase(unittest.TestCase):
         self.assertEqual(handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
                          'HTTP Status code not 400')
 
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_app_missing_env_region(self):
         from insert_resource import app
         _event = {
             Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
             "body": "{\"resource\": {}} "
         }
-
-        del os.environ[Constants.ENV_VAR_REGION]
         _handler_response = app.handler(_event, None)
         self.assertEqual(_handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.INTERNAL_SERVER_ERROR,
                          'HTTP Status code not 500')
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
     def test_app_missing_env_table(self):
         from insert_resource import app
         _event = {
             Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
             "body": "{\"resource\": {}} "
         }
-
-        del os.environ[Constants.ENV_VAR_TABLE_NAME]
         _handler_response = app.handler(_event, None)
         self.assertEqual(_handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.INTERNAL_SERVER_ERROR,
                          'HTTP Status code not 500')

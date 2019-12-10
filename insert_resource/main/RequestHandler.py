@@ -4,9 +4,7 @@ import os
 import uuid
 
 import arrow as arrow
-import boto3
 from boto3_type_annotations.dynamodb import Table
-
 from common.constants import Constants
 from common.helpers import response
 from common.validator import validate_resource_insert
@@ -16,10 +14,8 @@ from data.resource import Resource
 class RequestHandler:
 
     def __init__(self, dynamodb=None):
-        if dynamodb is None:
-            self.dynamodb = boto3.resource('dynamodb', region_name=os.environ[Constants.ENV_VAR_REGION])
-        else:
-            self.dynamodb = dynamodb
+
+        self.dynamodb = dynamodb
 
         self.table_name = os.environ.get(Constants.ENV_VAR_TABLE_NAME)
         self.table: Table = self.dynamodb.Table(self.table_name)
@@ -41,8 +37,6 @@ class RequestHandler:
         return ddb_response
 
     def handler(self, event, context):
-        if event is None or Constants.EVENT_BODY not in event or Constants.EVENT_HTTP_METHOD not in event:
-            return response(http.HTTPStatus.BAD_REQUEST, Constants.ERROR_INSUFFICIENT_PARAMETERS)
 
         body = json.loads(event[Constants.EVENT_BODY])
         http_method = event[Constants.EVENT_HTTP_METHOD]
@@ -55,8 +49,7 @@ class RequestHandler:
 
         current_time = arrow.utcnow().isoformat()
 
-        resource_not_none = resource is not None
-        if http_method == Constants.HTTP_METHOD_POST and resource_not_none:
+        if http_method == Constants.HTTP_METHOD_POST and resource is not None:
             try:
                 validate_resource_insert(resource)
             except ValueError as e:
