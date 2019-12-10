@@ -20,7 +20,8 @@ def handler(event, context):
     global _dynamodb
     if _dynamodb is None:
         try:
-            _dynamodb = DynamoDB.connect(os.environ[Constants.ENV_VAR_REGION])
+            ddb = DynamoDB()
+            _dynamodb = ddb.connect(os.environ[Constants.ENV_VAR_REGION])
         except Exception as e:
             return response(http.HTTPStatus.INTERNAL_SERVER_ERROR, e.args[0])
 
