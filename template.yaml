@@ -22,9 +22,7 @@ Parameters:
     Type: String
     Description: Reference to Cognito UserPool for the stage
 
-
 Resources:
-
   InsertResourceApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -34,8 +32,6 @@ Resources:
         Authorizers:
           MyCognitoAuthorizer:
             UserPoolArn: !Ref CognitoAuthorizerArn
-
-
 
   InsertResource:
     Type: AWS::Serverless::Function
