@@ -347,8 +347,10 @@ class TestHandlerCase(unittest.TestCase):
         self.assertEqual(handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
                          'HTTP Status code not 400')
 
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
     @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_app_missing_env_region(self):
+        del os.environ['REGION']
         from insert_resource import app
         _event = {
             Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
@@ -359,7 +361,9 @@ class TestHandlerCase(unittest.TestCase):
                          'HTTP Status code not 500')
 
     @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_app_missing_env_table(self):
+        del os.environ['TABLE_NAME']
         from insert_resource import app
         _event = {
             Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
