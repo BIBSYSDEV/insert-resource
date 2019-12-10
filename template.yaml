@@ -18,9 +18,24 @@ Parameters:
   ResourceTable:
     Type: String
     Description: Reference to table containing resource data
+  CognitoAuthorizerArn:
+    Type: String
+    Description: Reference to Cognito UserPool for the stage
 
 
 Resources:
+
+  InsertResourceApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !Ref CognitoAuthorizerArn
+
+
 
   InsertResource:
     Type: AWS::Serverless::Function
@@ -34,7 +49,14 @@ Resources:
           Properties:
             Path: /
             Method: POST
+            RestApiId: !Ref InsertResourceApi
       Environment:
         Variables:
           TABLE_NAME: !Ref ResourceTable
           REGION: !Ref AWS::Region
+
+Outputs:
+  FetchResourceApiName:
+    Value: !Ref InsertResourceApi
+    Export:
+      Name: !Sub "${AWS::StackName}-Api"
