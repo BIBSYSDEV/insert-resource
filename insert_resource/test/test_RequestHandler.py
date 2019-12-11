@@ -361,7 +361,7 @@ class TestHandlerCase(unittest.TestCase):
     @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
     @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_app_missing_env_table(self):
-        # del os.environ['TABLE_NAME']
+        del os.environ['TABLE_NAME']
         from insert_resource import app
         _event = {
             Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
