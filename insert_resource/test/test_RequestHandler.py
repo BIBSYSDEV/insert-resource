@@ -1,18 +1,15 @@
-import os
-import sys
-from unittest import mock
-
 import http
 import json
+import os
 import random
 import string
+import sys
 import unittest
 import uuid
+from unittest import mock
 
 import boto3
 from boto3.dynamodb.conditions import Key
-from moto import mock_dynamodb2
-
 from common.constants import Constants
 from common.encoders import encode_resource
 from common.helpers import remove_none_values
@@ -22,6 +19,7 @@ from data.file_metadata import FileMetadata
 from data.metadata import Metadata
 from data.resource import Resource
 from data.title import Title
+from moto import mock_dynamodb2
 
 testdir = os.path.dirname(__file__)
 srcdir = '../'
@@ -363,12 +361,24 @@ class TestHandlerCase(unittest.TestCase):
     @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
     @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
     def test_app_missing_env_table(self):
-        del os.environ['TABLE_NAME']
+        # del os.environ['TABLE_NAME']
         from insert_resource import app
         _event = {
             Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
-            "body": "{\"resource\": {}} "
+            Constants.EVENT_BODY: {
+                "resource": {
+                    "owner": "owner@unit.no",
+                    # "files": {},
+                    "metadata": {
+                        "titles": {
+                            "no": "En tittel",
+                            "en": "A title"
+                        }
+                    }
+                }
+            }
         }
+
         _handler_response = app.handler(_event, None)
         self.assertEqual(_handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.INTERNAL_SERVER_ERROR,
                          'HTTP Status code not 500')

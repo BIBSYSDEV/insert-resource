@@ -50,7 +50,9 @@ Resources:
         Variables:
           TABLE_NAME: !Ref ResourceTable
           REGION: !Ref AWS::Region
-
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ResourceTable
 Outputs:
   FetchResourceApiName:
     Value: !Ref InsertResourceApi
