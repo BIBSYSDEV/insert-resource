@@ -27,10 +27,6 @@ phases:
       - sam build --debug
       - sam package --debug --template-file .aws-sam/build/template.yaml --s3-bucket $S3_BUCKET --output-template-file packaged.yaml
 
-  post_build:
-    commands:
-      - sam publish --template packaged.yaml --semantic-version 0.0.1+$CODEBUILD_BUILD_NUMBER
-
 
 artifacts:
   type: zip
