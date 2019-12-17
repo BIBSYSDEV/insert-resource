@@ -2,18 +2,6 @@ AWSTemplateFormatVersion: 2010-09-09
 Transform:
   - AWS::Serverless-2016-10-31
 
-Metadata:
-  AWS::ServerlessRepo::Application:
-    Name: insert-resource
-    Description: Creates new resources and persists in DynamoDB
-    Author: Unit
-    SpdxLicenseId: MIT
-    LicenseUrl: LICENSE
-    ReadmeUrl: README.md
-    HomePageUrl: https://github.com/BIBSYSDEV/insert-resource
-    SemanticVersion: 0.0.1
-    SourceCodeUrl: https://github.com/BIBSYSDEV/insert-resource
-
 Parameters:
   ResourceTable:
     Type: String
@@ -21,6 +9,12 @@ Parameters:
   CognitoAuthorizerArn:
     Type: String
     Description: Reference to Cognito UserPool for the stage
+  CustomDomain:
+    Type: String
+    Description: Custom API to connect this lambda to
+  CustomDomainBasePath:
+    Type: String
+    Description: Base path mapping in CustomDomain
 
 Resources:
   InsertResourceApi:
@@ -53,8 +47,11 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref ResourceTable
-Outputs:
-  FetchResourceApiName:
-    Value: !Ref InsertResourceApi
-    Export:
-      Name: !Sub "${AWS::StackName}-Api"
+
+  InsertResourceBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: !Ref CustomDomainBasePath
+      DomainName: !Ref CustomDomain
+      RestApiId: !Ref InsertResourceApi
+      Stage: !Ref InsertResourceApi.Stage
