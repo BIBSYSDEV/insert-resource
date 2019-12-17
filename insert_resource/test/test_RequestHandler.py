@@ -339,7 +339,31 @@ class TestHandlerCase(unittest.TestCase):
     def test_app(self):
         from insert_resource import app
         event = {
-            "body": "{}"
+            Constants.EVENT_BODY: "{}"
+        }
+        handler_response = app.handler(event, None)
+        self.assertEqual(handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
+                         'HTTP Status code not 400')
+
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
+    def test_app_event_empty_body(self):
+        from insert_resource import app
+        event = {
+            Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
+            Constants.EVENT_BODY: ""
+        }
+        handler_response = app.handler(event, None)
+        self.assertEqual(handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
+                         'HTTP Status code not 400')
+
+    @mock.patch.dict(os.environ, {'REGION': 'eu-west-1'})
+    @mock.patch.dict(os.environ, {'TABLE_NAME': 'testing'})
+    def test_app_event_invalid_json_in_body(self):
+        from insert_resource import app
+        event = {
+            Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
+            Constants.EVENT_BODY: "asdf"
         }
         handler_response = app.handler(event, None)
         self.assertEqual(handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
@@ -350,9 +374,10 @@ class TestHandlerCase(unittest.TestCase):
     def test_app_missing_env_region(self):
         del os.environ['REGION']
         from insert_resource import app
+        app.clear_dynamodb()
         _event = {
             Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
-            "body": "{\"resource\": {}} "
+            Constants.EVENT_BODY: "{\"resource\": {}}"
         }
         _handler_response = app.handler(_event, None)
         self.assertEqual(_handler_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -363,20 +388,10 @@ class TestHandlerCase(unittest.TestCase):
     def test_app_missing_env_table(self):
         del os.environ['TABLE_NAME']
         from insert_resource import app
+        app.clear_dynamodb()
         _event = {
             Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
-            Constants.EVENT_BODY: {
-                "resource": {
-                    "owner": "owner@unit.no",
-                    # "files": {},
-                    "metadata": {
-                        "titles": {
-                            "no": "En tittel",
-                            "en": "A title"
-                        }
-                    }
-                }
-            }
+            Constants.EVENT_BODY: "{\"resource\": {}}"
         }
 
         _handler_response = app.handler(_event, None)

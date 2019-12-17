@@ -2,6 +2,7 @@ import http
 import json
 import os
 import uuid
+from json import JSONDecodeError
 
 import arrow as arrow
 from boto3_type_annotations.dynamodb import Table
@@ -38,7 +39,11 @@ class RequestHandler:
 
     def handler(self, event, context):
 
-        body = json.loads(event[Constants.EVENT_BODY])
+        try:
+            body = json.loads(event[Constants.EVENT_BODY])
+        except JSONDecodeError as e:
+            return response(http.HTTPStatus.BAD_REQUEST, e.args[0])
+
         http_method = event[Constants.EVENT_HTTP_METHOD]
         resource_dict_from_json = body.get(Constants.JSON_ATTRIBUTE_NAME_RESOURCE)
 
