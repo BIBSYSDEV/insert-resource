@@ -6,6 +6,7 @@ from json import JSONDecodeError
 
 import arrow as arrow
 from boto3_type_annotations.dynamodb import Table
+from common.http_constants import HttpConstants
 from common.constants import Constants
 from common.helpers import response
 from common.validator import validate_resource_insert
@@ -54,7 +55,7 @@ class RequestHandler:
 
         current_time = arrow.utcnow().isoformat()
 
-        if http_method == Constants.HTTP_METHOD_POST and resource is not None:
+        if http_method == HttpConstants.HTTP_METHOD_POST and resource is not None:
             try:
                 validate_resource_insert(resource)
             except ValueError as e:

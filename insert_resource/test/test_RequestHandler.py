@@ -10,6 +10,7 @@ from unittest import mock
 
 import boto3
 from boto3.dynamodb.conditions import Key
+from common.http_constants import HttpConstants
 from common.constants import Constants
 from common.encoders import encode_resource
 from common.helpers import remove_none_values
@@ -117,7 +118,7 @@ class TestHandlerCase(unittest.TestCase):
                                             'testing')
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
-        event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
+        event = generate_mock_event(HttpConstants.HTTP_METHOD_POST, resource)
         handler_insert_response = request_handler.handler(event, None)
         self.assertEqual(handler_insert_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.CREATED,
                          'HTTP Status code not 201')
@@ -131,7 +132,7 @@ class TestHandlerCase(unittest.TestCase):
                                             'testing')
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource()
-        event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
+        event = generate_mock_event(HttpConstants.HTTP_METHOD_POST, resource)
         handler_insert_response = request_handler.handler(event, None)
         self.assertEqual(handler_insert_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
                          'HTTP Status code not 400')
@@ -146,7 +147,7 @@ class TestHandlerCase(unittest.TestCase):
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
         resource.metadata = None
-        event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
+        event = generate_mock_event(HttpConstants.HTTP_METHOD_POST, resource)
         handler_insert_response = request_handler.handler(event, None)
         self.assertEqual(handler_insert_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
                          'HTTP Status code not 400')
@@ -161,7 +162,7 @@ class TestHandlerCase(unittest.TestCase):
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
         resource.files = None
-        event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
+        event = generate_mock_event(HttpConstants.HTTP_METHOD_POST, resource)
         handler_insert_response = request_handler.handler(event, None)
         self.assertEqual(handler_insert_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
                          'HTTP Status code not 400')
@@ -208,7 +209,7 @@ class TestHandlerCase(unittest.TestCase):
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
         resource.owner = None
-        event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
+        event = generate_mock_event(HttpConstants.HTTP_METHOD_POST, resource)
         handler_insert_response = request_handler.handler(event, None)
         self.assertEqual(handler_insert_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
                          'HTTP Status code not 400')
@@ -223,7 +224,7 @@ class TestHandlerCase(unittest.TestCase):
         request_handler = RequestHandler(dynamodb)
         resource = self.generate_mock_resource(None, None, None)
         resource.metadata = Metadata(None, None, None, None, None, None)
-        event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
+        event = generate_mock_event(HttpConstants.HTTP_METHOD_POST, resource)
         handler_insert_response = request_handler.handler(event, None)
         self.assertEqual(handler_insert_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.CREATED,
                          'HTTP Status code not 201')
@@ -266,7 +267,7 @@ class TestHandlerCase(unittest.TestCase):
         dynamodb = self.setup_mock_database('eu-west-1',
                                             'testing')
         request_handler = RequestHandler(dynamodb)
-        event = generate_mock_event(Constants.HTTP_METHOD_POST, None)
+        event = generate_mock_event(HttpConstants.HTTP_METHOD_POST, None)
         handler_insert_response = request_handler.handler(event, None)
         self.assertEqual(handler_insert_response[Constants.RESPONSE_STATUS_CODE], http.HTTPStatus.BAD_REQUEST,
                          'HTTP Status code not 400')
@@ -306,7 +307,7 @@ class TestHandlerCase(unittest.TestCase):
         request_handler = RequestHandler(dynamodb)
 
         resource = self.generate_mock_resource(None, None, None)
-        event = generate_mock_event(Constants.HTTP_METHOD_POST, resource)
+        event = generate_mock_event(HttpConstants.HTTP_METHOD_POST, resource)
         handler_insert_response = request_handler.handler(event, None)
 
         resource_dict_from_json = json.loads(event[Constants.EVENT_BODY]).get(Constants.JSON_ATTRIBUTE_NAME_RESOURCE)
@@ -350,7 +351,7 @@ class TestHandlerCase(unittest.TestCase):
     def test_app_event_empty_body(self):
         from insert_resource import app
         event = {
-            Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
+            Constants.EVENT_HTTP_METHOD: HttpConstants.HTTP_METHOD_POST,
             Constants.EVENT_BODY: ""
         }
         handler_response = app.handler(event, None)
@@ -362,7 +363,7 @@ class TestHandlerCase(unittest.TestCase):
     def test_app_event_invalid_json_in_body(self):
         from insert_resource import app
         event = {
-            Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
+            Constants.EVENT_HTTP_METHOD: HttpConstants.HTTP_METHOD_POST,
             Constants.EVENT_BODY: "asdf"
         }
         handler_response = app.handler(event, None)
@@ -376,7 +377,7 @@ class TestHandlerCase(unittest.TestCase):
         from insert_resource import app
         app.clear_dynamodb()
         _event = {
-            Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
+            Constants.EVENT_HTTP_METHOD: HttpConstants.HTTP_METHOD_POST,
             Constants.EVENT_BODY: "{\"resource\": {}}"
         }
         _handler_response = app.handler(_event, None)
@@ -390,7 +391,7 @@ class TestHandlerCase(unittest.TestCase):
         from insert_resource import app
         app.clear_dynamodb()
         _event = {
-            Constants.EVENT_HTTP_METHOD: Constants.HTTP_METHOD_POST,
+            Constants.EVENT_HTTP_METHOD: HttpConstants.HTTP_METHOD_POST,
             Constants.EVENT_BODY: "{\"resource\": {}}"
         }
 
