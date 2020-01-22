@@ -26,6 +26,10 @@ Resources:
         Authorizers:
           MyCognitoAuthorizer:
             UserPoolArn: !Ref CognitoAuthorizerArn
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowMethods: "'OPTIONS,POST'"
 
   InsertResource:
     Type: AWS::Serverless::Function
