@@ -44,6 +44,7 @@ Resources:
         Variables:
           TABLE_NAME: !Ref ResourceTable
           REGION: !Ref AWS::Region
+          ALLOWED_ORIGIN: '*'
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref ResourceTable

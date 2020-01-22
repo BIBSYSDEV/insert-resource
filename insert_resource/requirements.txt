@@ -1,5 +1,6 @@
+pylint
 boto3
 boto3_type_annotations
 arrow
 moto
-git+git://github.com/BIBSYSDEV/resource-utilities.git@635f990eb2ac2213e5f1959800fa01660905f9ba
+git+git://github.com/BIBSYSDEV/resource-utilities.git@39fb4a620c125273ceeace33b4322c01aae471d3
