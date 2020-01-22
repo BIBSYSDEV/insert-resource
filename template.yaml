@@ -22,7 +22,6 @@ Resources:
     Properties:
       StageName: Prod
       Auth:
-        DefaultAuthorizer: MyCognitoAuthorizer
         Authorizers:
           MyCognitoAuthorizer:
             UserPoolArn: !Ref CognitoAuthorizerArn
@@ -41,6 +40,8 @@ Resources:
         PostEvent:
           Type: Api
           Properties:
+            Auth:
+              Authorizer: MyCognitoAuthorizer
             Path: /
             Method: POST
             RestApiId: !Ref InsertResourceApi
