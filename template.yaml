@@ -9,7 +9,6 @@ Globals:
       AllowOrigin: !Sub
         - "'${Domain}'"
         - Domain: !Ref  CorsOrigin
-      AllowMethods: "'OPTIONS, GET, PUT'"
       AllowHeaders: !Ref CorsAllowHeaders
 
 Parameters:
